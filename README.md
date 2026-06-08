@@ -1,88 +1,74 @@
 # Dev Bot — Discord + Jira + Bitbucket
 
-Bot isolado para **ambiente de teste**. Não faz parte do Arpenium Laravel e não deve usar credenciais de produção da equipe.
+Bot para equipe de desenvolvimento integrar PRs do Bitbucket com tasks do Jira via Discord.
 
-## O que faz
+## Comandos
 
 | Comando | Descrição |
 |---------|-----------|
-| `/link-pr` | Vincula PR do Bitbucket à task Jira (link + comentário + status → **Em análise**) |
-| `/jira-status` | Consulta status da task |
+| `/link-pr` | Vincula PR aberto do Bitbucket à issue (link + comentário + status) |
+| `/jira-status` | Consulta título e status da issue |
+| `/jira-comment` | Adiciona comentário manual na issue |
 
-## Status Jira suportados
-
-- A fazer
-- Em andamento
-- **Em análise** ← transição ao vincular PR
-- Concluído
+Após o `/link-pr`, a mensagem exibe botões para alterar o status no Jira: **Em andamento**, **Em análise** e **Concluído**.
 
 ## Pré-requisitos
 
 - Node.js 18+
-- Conta Discord (Application + Bot)
-- Conta Jira Cloud free (sandbox)
-- Conta Bitbucket Cloud free (sandbox)
-- Token Atlassian: https://id.atlassian.com/manage-profile/security/api-tokens
+- Bot Discord (Application + Token)
+- Jira Cloud + Bitbucket Cloud (sandbox)
+- Token clássico Atlassian para Jira (`JIRA_AUTH_MODE=basic`)
 
 ## Configuração
 
-1. Copie o exemplo de ambiente:
-
 ```bash
 cp .env.example .env
-```
-
-2. Preencha `.env`:
-
-```env
-DISCORD_BOT_TOKEN=          # Bot → Token (Developer Portal)
-DISCORD_APPLICATION_ID=1513392554408939681
-DISCORD_GUILD_ID=           # ID do servidor Discord de teste
-
-ATLASSIAN_EMAIL=            # e-mail da conta Atlassian de teste
-ATLASSIAN_API_TOKEN=        # token ATATT...
-
-JIRA_BASE_URL=https://SEU-WORKSPACE.atlassian.net
-JIRA_PROJECT_KEY=           # ex.: TEST
-
-JIRA_TRANSITION_ON_LINK=Em análise
-BITBUCKET_WORKSPACE=        # ex.: likex
-```
-
-3. No [Discord Developer Portal](https://discord.com/developers/applications/1513392554408939681):
-
-   - Bot → **Reset Token** → copie para `DISCORD_BOT_TOKEN`
-   - Bot → ative **Message Content Intent** (opcional, não usado no MVP)
-   - OAuth2 → URL Generator → scopes: `bot`, `applications.commands`
-   - Convide o bot ao servidor de teste
-
-4. Instale e registre comandos:
-
-```bash
 npm install
 npm run register-commands
 npm start
 ```
 
+Variáveis principais no `.env`:
+
+```env
+DISCORD_BOT_TOKEN=
+DISCORD_APPLICATION_ID=
+DISCORD_GUILD_ID=
+
+ATLASSIAN_EMAIL=
+ATLASSIAN_API_TOKEN=
+BITBUCKET_API_TOKEN=
+
+JIRA_BASE_URL=https://seu-workspace.atlassian.net
+JIRA_PROJECT_KEY=
+JIRA_AUTH_MODE=basic
+
+JIRA_TRANSITION_ON_LINK=Em análise
+JIRA_TRANSITION_ON_COMPLETE=Concluído
+JIRA_STATUS_IN_PROGRESS=Em andamento
+
+BITBUCKET_WORKSPACE=
+# TECHLEAD_ROLE_ID=   # opcional — restringe botões de status
+```
+
 ## Uso
 
 ```
-/link-pr issue:TEST-1 url:https://bitbucket.org/seu-workspace/seu-repo/pull-requests/1
-/jira-status issue:TEST-1
+/link-pr issue:SCRUM-1 url:https://bitbucket.org/workspace/repo/pull-requests/1
+/jira-status issue:SCRUM-1
+/jira-comment issue:SCRUM-1 texto:Revisado, aguardando merge
 ```
 
-## Segurança
-
-- **Nunca** commite `.env`
-- Use contas e projetos **sandbox** até validar tudo
-- Rotacione tokens expostos em chats ou logs
-- A chave pública do Discord (`DISCORD_PUBLIC_KEY`) só é necessária para webhooks HTTP; este bot usa Gateway WebSocket
-
-## Deploy no seu VPS
+## Deploy (pm2)
 
 ```bash
-# Exemplo com pm2
 npm install --production
 npm run register-commands
 pm2 start src/index.js --name dev-bot
 ```
+
+## Segurança
+
+- Nunca commite `.env`
+- Rotacione tokens periodicamente
+- Use apenas contas e workspaces de sandbox/teste

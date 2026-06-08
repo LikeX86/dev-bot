@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 const { getIssue } = require('../jira');
 
 const data = new SlashCommandBuilder()
@@ -14,7 +14,7 @@ const data = new SlashCommandBuilder()
 async function execute(interaction) {
   const issueKey = interaction.options.getString('issue').trim().toUpperCase();
 
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   try {
     const issue = await getIssue(issueKey);

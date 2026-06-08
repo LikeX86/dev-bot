@@ -2,8 +2,13 @@ const { REST, Routes } = require('discord.js');
 const config = require('./config');
 const linkPr = require('./commands/link-pr');
 const jiraStatus = require('./commands/jira-status');
+const jiraComment = require('./commands/jira-comment');
 
-const commands = [linkPr.data.toJSON(), jiraStatus.data.toJSON()];
+const commands = [
+  linkPr.data.toJSON(),
+  jiraStatus.data.toJSON(),
+  jiraComment.data.toJSON(),
+];
 
 async function main() {
   const rest = new REST({ version: '10' }).setToken(config.discord.token());

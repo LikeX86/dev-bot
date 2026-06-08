@@ -6,7 +6,8 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "register-commands": "node src/register-commands.js"
+    "register-commands": "node src/register-commands.js",
+    "test-jira": "node scripts/test-jira.js"
   },
   "engines": {
     "node": ">=18"

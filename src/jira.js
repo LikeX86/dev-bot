@@ -1,8 +1,12 @@
 const config = require('./config');
-const { atlassianFetch } = require('./atlassian-auth');
+const { jiraFetch } = require('./atlassian-auth');
 
 function jiraUrl(path) {
-  return `${config.jira.baseUrl()}/rest/api/3${path}`;
+  if (config.jira.authMode === 'basic') {
+    return `${config.jira.baseUrl()}/rest/api/3${path}`;
+  }
+
+  return `https://api.atlassian.com/ex/jira/${config.jira.cloudId()}/rest/api/3${path}`;
 }
 
 function textToAdf(text) {
@@ -17,13 +21,11 @@ function textToAdf(text) {
 }
 
 async function getIssue(issueKey) {
-  return atlassianFetch(
-    jiraUrl(`/issue/${issueKey}?fields=summary,status`)
-  );
+  return jiraFetch(jiraUrl(`/issue/${issueKey}?fields=summary,status`));
 }
 
 async function addRemoteLink(issueKey, url, title) {
-  return atlassianFetch(jiraUrl(`/issue/${issueKey}/remotelink`), {
+  return jiraFetch(jiraUrl(`/issue/${issueKey}/remotelink`), {
     method: 'POST',
     body: JSON.stringify({
       object: {
@@ -35,7 +37,7 @@ async function addRemoteLink(issueKey, url, title) {
 }
 
 async function addComment(issueKey, text) {
-  return atlassianFetch(jiraUrl(`/issue/${issueKey}/comment`), {
+  return jiraFetch(jiraUrl(`/issue/${issueKey}/comment`), {
     method: 'POST',
     body: JSON.stringify({
       body: textToAdf(text),
@@ -44,7 +46,7 @@ async function addComment(issueKey, text) {
 }
 
 async function getTransitions(issueKey) {
-  const data = await atlassianFetch(jiraUrl(`/issue/${issueKey}/transitions`));
+  const data = await jiraFetch(jiraUrl(`/issue/${issueKey}/transitions`));
   return data.transitions || [];
 }
 
@@ -61,7 +63,7 @@ async function transitionIssue(issueKey, transitionName) {
     );
   }
 
-  return atlassianFetch(jiraUrl(`/issue/${issueKey}/transitions`), {
+  return jiraFetch(jiraUrl(`/issue/${issueKey}/transitions`), {
     method: 'POST',
     body: JSON.stringify({
       transition: { id: match.id },

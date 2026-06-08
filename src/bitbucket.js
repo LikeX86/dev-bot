@@ -1,5 +1,5 @@
 const config = require('./config');
-const { atlassianFetch } = require('./atlassian-auth');
+const { bitbucketFetch } = require('./atlassian-auth');
 
 function parsePullRequestUrl(url) {
   const pattern =
@@ -29,7 +29,7 @@ function parsePullRequestUrl(url) {
 async function getPullRequest(prUrl) {
   const { workspace, repo, id, url } = parsePullRequestUrl(prUrl);
   const apiUrl = `https://api.bitbucket.org/2.0/repositories/${workspace}/${repo}/pullrequests/${id}`;
-  const data = await atlassianFetch(apiUrl);
+  const data = await bitbucketFetch(apiUrl);
 
   return {
     id: data.id,

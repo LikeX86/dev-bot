@@ -1,6 +1,14 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { getPullRequest } = require('../bitbucket');
 const { linkPullRequest } = require('../jira');
+const { buildStatusRow } = require('../components/issue-status-row');
+
+const PR_STATE_LABELS = {
+  OPEN: 'aberto',
+  MERGED: 'mesclado',
+  DECLINED: 'recusado',
+  SUPERSEDED: 'substituído',
+};
 
 const data = new SlashCommandBuilder()
   .setName('link-pr')
@@ -27,6 +35,15 @@ async function execute(interaction) {
 
   try {
     const pr = await getPullRequest(prUrl);
+
+    if (pr.state !== 'OPEN') {
+      const label = PR_STATE_LABELS[pr.state] || pr.state;
+      await interaction.editReply({
+        content: `⚠️ O PR #${pr.id} está **${label}**, não aberto. Vincule apenas PRs abertos.`,
+      });
+      return;
+    }
+
     const result = await linkPullRequest(issueKey, pr, discordUser);
 
     const lines = [
@@ -41,7 +58,10 @@ async function execute(interaction) {
       lines.push(`• ⚠️ Transição: ${result.transitionWarning}`);
     }
 
-    await interaction.editReply({ content: lines.join('\n') });
+    await interaction.editReply({
+      content: lines.join('\n'),
+      components: [buildStatusRow(result.issueKey, result.status)],
+    });
   } catch (error) {
     await interaction.editReply({
       content: `❌ Não foi possível vincular o PR.\n\`\`\`${error.message}\`\`\``,

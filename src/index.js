@@ -9,13 +9,14 @@ const config = require('./config');
 const linkPr = require('./commands/link-pr');
 const jiraStatus = require('./commands/jira-status');
 const jiraComment = require('./commands/jira-comment');
+const ping = require('./commands/ping');
 const { handleIssueStatusButton } = require('./handlers/issue-status-button');
 const { CUSTOM_ID_PREFIX } = require('./components/issue-status-row');
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const commands = new Collection();
 
-[linkPr, jiraStatus, jiraComment].forEach((command) => {
+[linkPr, jiraStatus, jiraComment, ping].forEach((command) => {
   commands.set(command.data.name, command);
 });
 

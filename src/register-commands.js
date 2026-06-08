@@ -3,11 +3,13 @@ const config = require('./config');
 const linkPr = require('./commands/link-pr');
 const jiraStatus = require('./commands/jira-status');
 const jiraComment = require('./commands/jira-comment');
+const ping = require('./commands/ping');
 
 const commands = [
   linkPr.data.toJSON(),
   jiraStatus.data.toJSON(),
   jiraComment.data.toJSON(),
+  ping.data.toJSON(),
 ];
 
 async function main() {
